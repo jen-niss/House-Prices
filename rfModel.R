@@ -13,6 +13,7 @@ train <-read.csv("train.csv",stringsAsFactors = FALSE)
 test <- read.csv("test.csv",stringsAsFactors = FALSE)
 str(train)
 
+
 #Extract certain features with N/A removed and such
 extractFeatures <- function(data) {
   features <- c("LotFrontage",
@@ -33,7 +34,7 @@ extractFeatures <- function(data) {
   fea$MSSubClass[is.na(fea$MSSubClass)] <- median(fea$MSSubClass, na.rm=TRUE)
   fea$YearBuilt[is.na(fea$YearBuilt)] <- median(fea$YearBuilt, na.rm=TRUE)
   fea$GarageCars[is.na(fea$GarageCars)] <- median(fea$GarageCars, na.rm=TRUE)
-  fea$LotArea[is.na(fea$GarageArea)] <- median(fea$GarageArea, na.rm=TRUE)
+  fea$GarageArea[is.na(fea$GarageArea)] <- median(fea$GarageArea, na.rm=TRUE)
   fea$FullBath[is.na(fea$FullBath)] <- median(fea$FullBath, na.rm=TRUE)
   fea$GrLivArea[is.na(fea$GrLivArea)] <- median(fea$GrLivArea, na.rm=TRUE)
   
@@ -47,9 +48,12 @@ extractFeatures <- function(data) {
 rf <- randomForest(extractFeatures(train), as.factor(train$SalePrice), ntree=100, importance=TRUE)
 
 #Create submission csv
-submission <- data.frame(PassengerId = test$Id)
+submission <- data.frame(Id = test$Id)
 submission$SalePrice <- predict(rf, extractFeatures(test))
 write.csv(submission, file = "house_random_forest_r_submission.csv", row.names=FALSE)
+
+any(is.na(extractFeatures(test)$GarageArea))
+any(is.na(extractFeatures(train)))
 
 #importance plot
 imp <- importance(rf, type=1)
